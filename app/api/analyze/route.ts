@@ -7,37 +7,16 @@ const anthropic = new Anthropic({
 });
 
 /**
- * Parse JSON from Claude's response, handling markdown fences and extra text
+ * Validate that the result has required top-level keys
  */
-function parseJsonLoose(text: string): any {
-  // Trim whitespace
-  let cleaned = text.trim();
-
-  // Strip markdown code fences if present
-  if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.slice(7); // Remove ```json
-  } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.slice(3); // Remove ```
-  }
-
-  if (cleaned.endsWith('```')) {
-    cleaned = cleaned.slice(0, -3); // Remove trailing ```
-  }
-
-  cleaned = cleaned.trim();
-
-  // Extract JSON object by finding first { and last }
-  const firstBrace = cleaned.indexOf('{');
-  const lastBrace = cleaned.lastIndexOf('}');
-
-  if (firstBrace === -1 || lastBrace === -1 || firstBrace >= lastBrace) {
-    throw new Error('No valid JSON object found in response');
-  }
-
-  const jsonStr = cleaned.slice(firstBrace, lastBrace + 1);
-
-  // Parse and return
-  return JSON.parse(jsonStr);
+function validateAnalysisResult(data: any): data is AnalysisResult {
+  return (
+    data &&
+    typeof data === 'object' &&
+    typeof data.summary === 'string' &&
+    Array.isArray(data.pathways) &&
+    data.pathways.length === 3
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -73,47 +52,7 @@ Income Expectations: ${profile.incomeExpectations}
 Education Interest: ${profile.educationInterest}
 Timeline: ${profile.timeline}
 
-CRITICAL: You must respond with ONLY raw JSON. Do not wrap it in markdown code fences (no \`\`\`json). Do not include any explanatory text before or after the JSON. Return nothing but the JSON object itself.
-
-Required JSON format:
-{
-  "summary": "A brief 2-3 sentence overview of this veteran's strengths and transition outlook",
-  "pathways": [
-    {
-      "type": "fast-income",
-      "title": "Career Title",
-      "description": "2-3 sentence description of this pathway",
-      "incomeTrajectory": {
-        "year1": "$XX,XXX",
-        "year3": "$XX,XXX",
-        "year5": "$XX,XXX"
-      },
-      "roadmap": [
-        {
-          "phase": "Phase Name",
-          "duration": "X months",
-          "steps": ["Step 1", "Step 2", "Step 3"]
-        }
-      ],
-      "requiredCredentials": [
-        {
-          "name": "Credential name",
-          "timeline": "X months",
-          "cost": "$X,XXX"
-        }
-      ],
-      "familyImpact": {
-        "timeCommitment": "X hours/week",
-        "flexibility": "High/Medium/Low",
-        "stability": "Description",
-        "notes": "Family considerations"
-      },
-      "whyThisPath": "2-3 sentences on why this path fits this veteran"
-    }
-  ]
-}
-
-Make each pathway specific, actionable, and realistic. Consider the veteran's military background, skills, family situation, and goals. Include real job titles, actual certifications, and market-based salary ranges.`;
+Call the tool emit_analysis with the complete analysis payload. Do not output prose. Make each pathway specific, actionable, and realistic. Consider the veteran's military background, skills, family situation, and goals. Include real job titles, actual certifications, and market-based salary ranges.`;
 
     const message = await anthropic.messages.create({
       model: 'claude-opus-4-5-20251101',
@@ -124,23 +63,141 @@ Make each pathway specific, actionable, and realistic. Consider the veteran's mi
           content: prompt,
         },
       ],
+      tools: [
+        {
+          name: 'emit_analysis',
+          description: 'Emit the complete career pathway analysis for the veteran',
+          input_schema: {
+            type: 'object',
+            properties: {
+              summary: {
+                type: 'string',
+                description: 'A brief 2-3 sentence overview of this veteran\'s strengths and transition outlook',
+              },
+              pathways: {
+                type: 'array',
+                description: 'Three distinct career pathways',
+                items: {
+                  type: 'object',
+                  properties: {
+                    type: {
+                      type: 'string',
+                      enum: ['fast-income', 'balanced', 'max-upside'],
+                      description: 'The type of pathway',
+                    },
+                    title: {
+                      type: 'string',
+                      description: 'The career title for this pathway',
+                    },
+                    description: {
+                      type: 'string',
+                      description: '2-3 sentence description of this pathway',
+                    },
+                    incomeTrajectory: {
+                      type: 'object',
+                      properties: {
+                        year1: { type: 'string', description: 'Expected income in year 1' },
+                        year3: { type: 'string', description: 'Expected income in year 3' },
+                        year5: { type: 'string', description: 'Expected income in year 5' },
+                      },
+                      required: ['year1', 'year3', 'year5'],
+                    },
+                    roadmap: {
+                      type: 'array',
+                      description: 'Step-by-step roadmap phases',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          phase: { type: 'string', description: 'Phase name' },
+                          duration: { type: 'string', description: 'Duration of this phase' },
+                          steps: {
+                            type: 'array',
+                            items: { type: 'string' },
+                            description: 'Specific steps in this phase',
+                          },
+                        },
+                        required: ['phase', 'duration', 'steps'],
+                      },
+                    },
+                    requiredCredentials: {
+                      type: 'array',
+                      description: 'Required credentials for this pathway',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          name: { type: 'string', description: 'Credential name' },
+                          timeline: { type: 'string', description: 'Time to obtain' },
+                          cost: { type: 'string', description: 'Estimated cost' },
+                        },
+                        required: ['name', 'timeline', 'cost'],
+                      },
+                    },
+                    familyImpact: {
+                      type: 'object',
+                      properties: {
+                        timeCommitment: { type: 'string', description: 'Time commitment per week' },
+                        flexibility: {
+                          type: 'string',
+                          enum: ['High', 'Medium', 'Low'],
+                          description: 'Schedule flexibility',
+                        },
+                        stability: { type: 'string', description: 'Job stability description' },
+                        notes: { type: 'string', description: 'Family considerations' },
+                      },
+                      required: ['timeCommitment', 'flexibility', 'stability', 'notes'],
+                    },
+                    whyThisPath: {
+                      type: 'string',
+                      description: '2-3 sentences on why this path fits this veteran',
+                    },
+                  },
+                  required: [
+                    'type',
+                    'title',
+                    'description',
+                    'incomeTrajectory',
+                    'roadmap',
+                    'requiredCredentials',
+                    'familyImpact',
+                    'whyThisPath',
+                  ],
+                },
+              },
+            },
+            required: ['summary', 'pathways'],
+          },
+        },
+      ],
+      tool_choice: {
+        type: 'tool',
+        name: 'emit_analysis',
+      },
     });
 
-    const content = message.content[0];
-    if (content.type !== 'text') {
-      throw new Error('Unexpected response type from Claude');
-    }
+    // Extract tool use from response
+    const toolUse = message.content.find(
+      (block) => block.type === 'tool_use' && block.name === 'emit_analysis'
+    );
 
-    // Parse the JSON response with robust handling
-    let result: AnalysisResult;
-    try {
-      result = parseJsonLoose(content.text);
-    } catch (parseError) {
-      console.error('JSON parsing failed:', parseError);
-      const rawPreview = content.text.slice(0, 300);
+    if (!toolUse || toolUse.type !== 'tool_use') {
+      const rawPreview = JSON.stringify(message.content).slice(0, 300);
       return NextResponse.json(
         {
-          error: 'Invalid JSON response from model',
+          error: 'No tool use found in response',
+          rawPreview,
+        },
+        { status: 500 }
+      );
+    }
+
+    const result = toolUse.input;
+
+    // Validate the payload shape
+    if (!validateAnalysisResult(result)) {
+      const rawPreview = JSON.stringify(result).slice(0, 300);
+      return NextResponse.json(
+        {
+          error: 'Invalid analysis result structure',
           rawPreview,
         },
         { status: 500 }
