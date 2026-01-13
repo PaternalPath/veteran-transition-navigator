@@ -71,13 +71,14 @@ export default function Home() {
             <div className="rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm">
               <h2 className="text-2xl font-semibold text-slate-900">Something went wrong</h2>
               <p className="mt-3 text-sm text-slate-600">
-                {errorMessage ?? 'Please try again. If the issue persists, refresh the page.'}
+                {errorMessage ??
+                  'We hit a snag while building your pathways. Please try again in a moment.'}
               </p>
               <button
                 onClick={handleStartOver}
                 className="mt-6 rounded-full bg-slate-900 px-6 py-2 text-sm font-semibold text-white hover:bg-slate-800"
               >
-                Back to Intake
+                Retry
               </button>
             </div>
           </div>

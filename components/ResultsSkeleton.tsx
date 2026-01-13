@@ -4,6 +4,10 @@ export default function ResultsSkeleton() {
   return (
     <div className="mx-auto max-w-7xl px-6 pb-12 pt-4">
       <div className="animate-pulse space-y-6">
+        <div className="flex items-center gap-3 text-sm text-slate-500">
+          <div className="h-2 w-2 rounded-full bg-slate-300" />
+          <p>Generating your pathways...</p>
+        </div>
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-3">
             <div className="h-3 w-32 rounded-full bg-slate-200" />
