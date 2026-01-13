@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import IntakeForm from '@/components/IntakeForm';
 import ResultsDisplay from '@/components/ResultsDisplay';
+import ResultsSkeleton from '@/components/ResultsSkeleton';
 import { VeteranProfile, AnalysisResult } from '@/types';
 
 export default function Home() {
-  const [stage, setStage] = useState<'intake' | 'loading' | 'results'>('intake');
+  const [stage, setStage] = useState<'intake' | 'loading' | 'results' | 'error'>('intake');
   const [results, setResults] = useState<AnalysisResult | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleFormComplete = async (profile: VeteranProfile) => {
     setStage('loading');
@@ -27,17 +29,19 @@ export default function Home() {
 
       const result: AnalysisResult = await response.json();
       setResults(result);
+      setErrorMessage(null);
       setStage('results');
     } catch (error) {
       console.error('Error:', error);
-      alert('Failed to generate career pathways. Please try again.');
-      setStage('intake');
+      setErrorMessage('We were unable to generate pathways. Please try again.');
+      setStage('error');
     }
   };
 
   const handleStartOver = () => {
     setStage('intake');
     setResults(null);
+    setErrorMessage(null);
   };
 
   return (
@@ -55,17 +59,28 @@ export default function Home() {
         {stage === 'intake' && <IntakeForm onComplete={handleFormComplete} />}
 
         {stage === 'loading' && (
-          <div className="flex flex-col items-center justify-center min-h-[60vh]">
-            <div className="relative">
-              <div className="w-20 h-20 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-            </div>
-            <p className="mt-6 text-xl font-semibold text-gray-700">Analyzing your profile...</p>
-            <p className="mt-2 text-gray-600">Generating personalized career pathways</p>
-          </div>
+          <ResultsSkeleton />
         )}
 
         {stage === 'results' && results && (
           <ResultsDisplay result={results} onStartOver={handleStartOver} />
+        )}
+
+        {stage === 'error' && (
+          <div className="mx-auto max-w-3xl px-6 py-16">
+            <div className="rounded-2xl border border-red-200 bg-white p-8 text-center shadow-sm">
+              <h2 className="text-2xl font-semibold text-slate-900">Something went wrong</h2>
+              <p className="mt-3 text-sm text-slate-600">
+                {errorMessage ?? 'Please try again. If the issue persists, refresh the page.'}
+              </p>
+              <button
+                onClick={handleStartOver}
+                className="mt-6 rounded-full bg-slate-900 px-6 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+              >
+                Back to Intake
+              </button>
+            </div>
+          </div>
         )}
       </main>
 
