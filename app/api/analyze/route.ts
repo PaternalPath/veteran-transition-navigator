@@ -6,6 +6,40 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+/**
+ * Parse JSON from Claude's response, handling markdown fences and extra text
+ */
+function parseJsonLoose(text: string): any {
+  // Trim whitespace
+  let cleaned = text.trim();
+
+  // Strip markdown code fences if present
+  if (cleaned.startsWith('```json')) {
+    cleaned = cleaned.slice(7); // Remove ```json
+  } else if (cleaned.startsWith('```')) {
+    cleaned = cleaned.slice(3); // Remove ```
+  }
+
+  if (cleaned.endsWith('```')) {
+    cleaned = cleaned.slice(0, -3); // Remove trailing ```
+  }
+
+  cleaned = cleaned.trim();
+
+  // Extract JSON object by finding first { and last }
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+
+  if (firstBrace === -1 || lastBrace === -1 || firstBrace >= lastBrace) {
+    throw new Error('No valid JSON object found in response');
+  }
+
+  const jsonStr = cleaned.slice(firstBrace, lastBrace + 1);
+
+  // Parse and return
+  return JSON.parse(jsonStr);
+}
+
 export async function POST(request: NextRequest) {
   try {
     const profile: VeteranProfile = await request.json();
@@ -39,7 +73,9 @@ Income Expectations: ${profile.incomeExpectations}
 Education Interest: ${profile.educationInterest}
 Timeline: ${profile.timeline}
 
-Please respond with a JSON object ONLY (no markdown, no code blocks) in the following format:
+CRITICAL: You must respond with ONLY raw JSON. Do not wrap it in markdown code fences (no \`\`\`json). Do not include any explanatory text before or after the JSON. Return nothing but the JSON object itself.
+
+Required JSON format:
 {
   "summary": "A brief 2-3 sentence overview of this veteran's strengths and transition outlook",
   "pathways": [
@@ -95,8 +131,21 @@ Make each pathway specific, actionable, and realistic. Consider the veteran's mi
       throw new Error('Unexpected response type from Claude');
     }
 
-    // Parse the JSON response
-    const result: AnalysisResult = JSON.parse(content.text);
+    // Parse the JSON response with robust handling
+    let result: AnalysisResult;
+    try {
+      result = parseJsonLoose(content.text);
+    } catch (parseError) {
+      console.error('JSON parsing failed:', parseError);
+      const rawPreview = content.text.slice(0, 300);
+      return NextResponse.json(
+        {
+          error: 'Invalid JSON response from model',
+          rawPreview,
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(result);
   } catch (error) {
