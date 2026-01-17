@@ -9,13 +9,13 @@ const anthropic = new Anthropic({
 /**
  * Validate that the result has required top-level keys
  */
-function validateAnalysisResult(data: any): data is AnalysisResult {
+function validateAnalysisResult(data: unknown): data is AnalysisResult {
+  if (!data || typeof data !== 'object') return false;
+  const obj = data as Record<string, unknown>;
   return (
-    data &&
-    typeof data === 'object' &&
-    typeof data.summary === 'string' &&
-    Array.isArray(data.pathways) &&
-    data.pathways.length === 3
+    typeof obj.summary === 'string' &&
+    Array.isArray(obj.pathways) &&
+    obj.pathways.length === 3
   );
 }
 
@@ -72,7 +72,8 @@ Call the tool emit_analysis with the complete analysis payload. Do not output pr
             properties: {
               summary: {
                 type: 'string',
-                description: 'A brief 2-3 sentence overview of this veteran\'s strengths and transition outlook',
+                description:
+                  "A brief 2-3 sentence overview of this veteran's strengths and transition outlook",
               },
               pathways: {
                 type: 'array',
@@ -207,9 +208,6 @@ Call the tool emit_analysis with the complete analysis payload. Do not output pr
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error analyzing veteran profile:', error);
-    return NextResponse.json(
-      { error: 'Failed to analyze profile' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to analyze profile' }, { status: 500 });
   }
 }

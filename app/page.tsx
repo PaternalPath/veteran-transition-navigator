@@ -58,9 +58,7 @@ export default function Home() {
       <main className="py-8">
         {stage === 'intake' && <IntakeForm onComplete={handleFormComplete} />}
 
-        {stage === 'loading' && (
-          <ResultsSkeleton />
-        )}
+        {stage === 'loading' && <ResultsSkeleton />}
 
         {stage === 'results' && results && (
           <ResultsDisplay result={results} onStartOver={handleStartOver} />

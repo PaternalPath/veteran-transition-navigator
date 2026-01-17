@@ -27,27 +27,32 @@ A Next.js application that helps veterans transition to civilian careers by anal
 ### Local Development
 
 1. Clone the repository:
+
 ```bash
 git clone <your-repo-url>
 cd veteran-transition-navigator
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Create a `.env.local` file:
+
 ```bash
 cp .env.local.example .env.local
 ```
 
 4. Add your Anthropic API key to `.env.local`:
+
 ```
 ANTHROPIC_API_KEY=your_actual_api_key_here
 ```
 
 5. Run the development server:
+
 ```bash
 npm run dev
 ```
@@ -70,35 +75,40 @@ npm run dev
 ### Option 2: Deploy via Vercel CLI
 
 1. Install Vercel CLI:
+
 ```bash
 npm i -g vercel
 ```
 
 2. Login to Vercel:
+
 ```bash
 vercel login
 ```
 
 3. Deploy:
+
 ```bash
 vercel
 ```
 
 4. Add environment variable:
+
 ```bash
 vercel env add ANTHROPIC_API_KEY
 ```
 
 5. Deploy to production:
+
 ```bash
 vercel --prod
 ```
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `ANTHROPIC_API_KEY` | Your Anthropic API key for Claude AI | Yes |
+| Variable            | Description                          | Required |
+| ------------------- | ------------------------------------ | -------- |
+| `ANTHROPIC_API_KEY` | Your Anthropic API key for Claude AI | Yes      |
 
 ## Tech Stack
 

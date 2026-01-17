@@ -98,7 +98,9 @@ const parseDurationRange = (value: string) => {
   const matches = value.match(/[\d.]+/g);
   if (!matches) return null;
 
-  const values = matches.map((match) => Number.parseFloat(match)).filter((val) => !Number.isNaN(val));
+  const values = matches
+    .map((match) => Number.parseFloat(match))
+    .filter((val) => !Number.isNaN(val));
   if (!values.length) return null;
 
   let multiplier = 1;
@@ -141,8 +143,7 @@ const parseCostValue = (value: string) => {
   return Number.isNaN(numberValue) ? null : numberValue;
 };
 
-const formatCurrency = (value: number) =>
-  `$${Math.round(value).toLocaleString('en-US')}`;
+const formatCurrency = (value: number) => `$${Math.round(value).toLocaleString('en-US')}`;
 
 const getWhyBullets = (whyThisPath: string) =>
   whyThisPath
@@ -161,7 +162,7 @@ function PathwayCard({ pathway }: { pathway: CareerPathway }) {
       if (!acc) return { ...range };
       return { min: acc.min + range.min, max: acc.max + range.max };
     },
-    null,
+    null
   );
   const roadmapSummaryParts = [
     pluralize(pathway.roadmap.length, 'phase', 'phases'),
@@ -174,9 +175,10 @@ function PathwayCard({ pathway }: { pathway: CareerPathway }) {
     .map((credential) => parseCostValue(credential.cost))
     .filter((value): value is number => value !== null);
   const totalCredentialCost = credentialCosts.reduce((sum, value) => sum + value, 0);
-  const credentialTimelineRange = pathway.requiredCredentials.reduce<
-    { min: number; max: number } | null
-  >((acc, credential) => {
+  const credentialTimelineRange = pathway.requiredCredentials.reduce<{
+    min: number;
+    max: number;
+  } | null>((acc, credential) => {
     const range = parseDurationRange(credential.timeline);
     if (!range) return acc;
     if (!acc) return { ...range };
@@ -230,9 +232,7 @@ function PathwayCard({ pathway }: { pathway: CareerPathway }) {
         </div>
         <div>
           <p className="text-xs uppercase tracking-wider text-slate-500">Time</p>
-          <p className="mt-1 font-semibold text-slate-900">
-            {pathway.familyImpact.timeCommitment}
-          </p>
+          <p className="mt-1 font-semibold text-slate-900">{pathway.familyImpact.timeCommitment}</p>
         </div>
       </div>
 
@@ -302,7 +302,8 @@ export default function ResultsDisplay({ result, onStartOver }: ResultsDisplayPr
         <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <h2 className="text-2xl font-semibold text-slate-900">No pathways generated</h2>
           <p className="mt-3 text-sm text-slate-600">
-            We could not assemble recommendations for this profile yet. Please try again or adjust your inputs.
+            We could not assemble recommendations for this profile yet. Please try again or adjust
+            your inputs.
           </p>
           <button
             onClick={onStartOver}
@@ -324,7 +325,9 @@ export default function ResultsDisplay({ result, onStartOver }: ResultsDisplayPr
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500">
             Career Pathways
           </p>
-          <h1 className="mt-2 text-4xl font-semibold text-slate-900">Your Transition Intelligence</h1>
+          <h1 className="mt-2 text-4xl font-semibold text-slate-900">
+            Your Transition Intelligence
+          </h1>
         </div>
         <button
           onClick={onStartOver}
