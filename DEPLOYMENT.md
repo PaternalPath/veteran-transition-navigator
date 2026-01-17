@@ -12,6 +12,7 @@
    - Click "Create repository"
 
 2. Push your code to GitHub:
+
 ```bash
 # Add the GitHub remote (replace YOUR_USERNAME with your GitHub username)
 git remote add origin https://github.com/YOUR_USERNAME/veteran-transition-navigator.git
@@ -56,16 +57,19 @@ git push -u origin main
 #### Option B: Via Vercel CLI
 
 1. Install Vercel CLI globally:
+
 ```bash
 npm i -g vercel
 ```
 
 2. Login to Vercel:
+
 ```bash
 vercel login
 ```
 
 3. Deploy from the project directory:
+
 ```bash
 vercel
 ```
@@ -78,12 +82,15 @@ vercel
    - In which directory is your code located? `./`
 
 5. Add the environment variable:
+
 ```bash
 vercel env add ANTHROPIC_API_KEY production
 ```
-   - Paste your Anthropic API key when prompted
+
+- Paste your Anthropic API key when prompted
 
 6. Deploy to production:
+
 ```bash
 vercel --prod
 ```
@@ -119,6 +126,7 @@ Vercel automatically deploys when you push to GitHub:
 1. Make changes to your code locally
 
 2. Commit and push to GitHub:
+
 ```bash
 git add .
 git commit -m "Your commit message"
@@ -129,9 +137,9 @@ git push
 
 ## Environment Variables Reference
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `ANTHROPIC_API_KEY` | Yes | Your Anthropic API key for Claude AI access |
+| Variable            | Required | Description                                 |
+| ------------------- | -------- | ------------------------------------------- |
+| `ANTHROPIC_API_KEY` | Yes      | Your Anthropic API key for Claude AI access |
 
 ## Troubleshooting
 
@@ -139,6 +147,7 @@ git push
 
 **Issue**: Build fails during deployment
 **Solution**:
+
 - Check build logs in Vercel dashboard
 - Ensure all dependencies are in `package.json`
 - Run `npm run build` locally to test
@@ -147,6 +156,7 @@ git push
 
 **Issue**: "Failed to analyze profile" error
 **Solution**:
+
 - Verify `ANTHROPIC_API_KEY` is set in Vercel environment variables
 - Check API key is valid at https://console.anthropic.com/
 - Verify you have available API credits
@@ -155,6 +165,7 @@ git push
 
 **Issue**: API returns empty or malformed data
 **Solution**:
+
 - Check Vercel function logs for errors
 - Verify the API route is working: visit `your-domain.vercel.app/api/analyze`
 - Ensure the Claude API response is being parsed correctly
@@ -174,8 +185,10 @@ git push
 ## Support
 
 For deployment issues:
+
 - Vercel: https://vercel.com/docs
 - Anthropic: https://docs.anthropic.com/
 
 For application issues:
+
 - Open an issue on GitHub

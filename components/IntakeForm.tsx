@@ -15,7 +15,10 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
     preferredLocations: [],
   });
 
-  const updateProfile = (field: string, value: any) => {
+  const updateProfile = (
+    field: keyof VeteranProfile,
+    value: string | number | boolean | string[]
+  ) => {
     setProfile({ ...profile, [field]: value });
   };
 
@@ -40,7 +43,10 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
 
   const removeFromArray = (field: keyof VeteranProfile, value: string) => {
     const current = (profile[field] as string[]) || [];
-    updateProfile(field, current.filter(item => item !== value));
+    updateProfile(
+      field,
+      current.filter((item) => item !== value)
+    );
   };
 
   return (
@@ -57,9 +63,7 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
             />
           ))}
         </div>
-        <p className="text-sm text-gray-600 text-center">
-          Step {currentStep} of 5
-        </p>
+        <p className="text-sm text-gray-600 text-center">Step {currentStep} of 5</p>
       </div>
 
       {/* Step 1: Service Background */}
@@ -87,9 +91,7 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Years of Service
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Years of Service</label>
             <input
               type="number"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -101,9 +103,7 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Final Rank
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Final Rank</label>
             <input
               type="text"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -114,9 +114,7 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              MOS / Job Code
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">MOS / Job Code</label>
             <input
               type="text"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -134,9 +132,7 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
           <h2 className="text-2xl font-bold text-gray-900">Skills & Experience</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Technical Skills
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Technical Skills</label>
             <div className="flex gap-2 mb-2">
               <input
                 type="text"
@@ -170,9 +166,7 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Certifications
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Certifications</label>
             <div className="flex gap-2 mb-2">
               <input
                 type="text"
@@ -226,9 +220,7 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
           <h2 className="text-2xl font-bold text-gray-900">Family Situation</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Family Status
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Family Status</label>
             <select
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={profile.familyStatus || ''}
@@ -281,9 +273,7 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
           <h2 className="text-2xl font-bold text-gray-900">Location Preferences</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Current Location
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Current Location</label>
             <input
               type="text"
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -367,9 +357,7 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
           <h2 className="text-2xl font-bold text-gray-900">Career Goals</h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Career Goals
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Career Goals</label>
             <textarea
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               rows={4}
@@ -408,7 +396,9 @@ export default function IntakeForm({ onComplete }: IntakeFormProps) {
             >
               <option value="">Select option</option>
               <option value="Not interested">Not interested</option>
-              <option value="Short-term certifications">Short-term certifications (3-6 months)</option>
+              <option value="Short-term certifications">
+                Short-term certifications (3-6 months)
+              </option>
               <option value="Associate degree">Associate degree</option>
               <option value="Bachelor degree">Bachelor degree</option>
               <option value="Graduate degree">Graduate degree</option>

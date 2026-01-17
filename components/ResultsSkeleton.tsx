@@ -25,7 +25,10 @@ export default function ResultsSkeleton() {
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             {[0, 1, 2].map((item) => (
-              <div key={item} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6">
+              <div
+                key={item}
+                className="space-y-4 rounded-2xl border border-slate-200 bg-white p-6"
+              >
                 <div className="h-6 w-28 rounded-full bg-slate-200" />
                 <div className="h-6 w-48 rounded-lg bg-slate-200" />
                 <div className="space-y-2">
