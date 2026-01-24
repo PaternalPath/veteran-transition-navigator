@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeProfile, VeteranProfileSchema } from '@/src/lib/analyzer';
 import { checkRateLimit, getClientIP } from '@/src/lib/rateLimit';
+import { logger } from '@/src/lib/logger';
 import { z } from 'zod';
 
 /**
@@ -102,10 +103,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle other errors (don't leak stack traces or sensitive info)
-    // Log error server-side for debugging (but never log API keys or PII)
-    if (process.env.NODE_ENV !== 'production') {
-      console.error('[API Error]', error instanceof Error ? error.message : 'Unknown error');
-    }
+    logger.error(
+      'Profile analysis failed',
+      { endpoint: '/api/analyze' },
+      error instanceof Error ? error : new Error('Unknown error')
+    );
 
     const message =
       error instanceof Error && !error.message.includes('API')
